@@ -1,0 +1,14 @@
+title = "config"
+
+[info]
+creator = "Caio Faria Rigues"
+verson = "0.1.0"
+
+[video]
+default.resolution = "1080p"
+default.format = "MP4"
+default.path = 'path/to/folder'
+
+[audio]
+default.format = "MP3"
+default.path = 'path/to/folder'
