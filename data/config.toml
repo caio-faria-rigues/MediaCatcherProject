@@ -4,11 +4,14 @@ title = "config"
 creator = "Caio Faria Rigues"
 verson = "0.1.0"
 
-[video]
-default.resolution = "1080p"
-default.format = "MP4"
-default.path = 'path/to/folder'
+[video.default]
+resolution = "1080p"
+format = "MP4"
+path = "path/to/folder"
 
-[audio]
-default.format = "MP3"
-default.path = 'path/to/folder'
+[audio.default]
+format = "MP3"
+path = "C:\\Users\\Cliente\\Pictures\\Di Cria\\Padua Refference"
+
+[optional.default]
+path = "path/to/folder"

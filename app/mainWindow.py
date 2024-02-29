@@ -26,9 +26,13 @@ class MediaCatcher(ft.UserControl):
         self.audioDirDialog = ft.FilePicker(on_result=self.settingsView.getAudioDir)
         self.videoDirDialog = ft.FilePicker(on_result=self.settingsView.getVideoDir)
         self.customDirDialog = ft.FilePicker(on_result=self.downloaderView.getCustomDir)
+        self.playerDirDialog = ft.FilePicker(on_result=self.playerView.getFilePath)
+        self.optionalDirDialog = ft.FilePicker(on_result=self.settingsView.getOptionalDir)
         self.page.overlay.append(self.audioDirDialog)
         self.page.overlay.append(self.videoDirDialog)
         self.page.overlay.append(self.customDirDialog)
+        self.page.overlay.append(self.playerDirDialog)
+        self.page.overlay.append(self.optionalDirDialog)
 
         self.mainContainer = ft.Container(
                 expand=False,
@@ -155,8 +159,8 @@ class MediaCatcher(ft.UserControl):
             print("Selected destination:", e.control.selected_index)
             match e.control.selected_index:
                 case 0: self.mainContainer.content = self.downloaderView.returnView(self.customDirDialog)
-                case 1: self.mainContainer.content = self.playerView.returnView()
-                case 2: self.mainContainer.content = self.settingsView.returnView(self.audioDirDialog, self.videoDirDialog)
+                case 1: self.mainContainer.content = self.playerView.returnView(self.playerDirDialog)
+                case 2: self.mainContainer.content = self.settingsView.returnView(self.audioDirDialog, self.videoDirDialog, self.optionalDirDialog)
             self.mainContainer.update()
 
         self.prevIndex = e.control.selected_index

@@ -1,17 +1,21 @@
 import flet as ft
-from source.widgets import pallete
+from source.tools import pallete
 from os import listdir
 
 
 class PlayerView:
     def __init__(self) -> None:
+        self.dirDialog = None
+        self.filePath = ft.Text(value=r'C:\Users\Cliente\Documents\MediaCatcher\Audio', size=15)
         self.fileWidget = ft.Column(
             scroll=ft.ScrollMode.ALWAYS,
             spacing=20,
+            height=300,
+            width=765
         )
 
-        for i in range(0, len(listdir(r'C:\Users\Cliente\Pictures\Saved Pictures'))):
-            self.fileWidget.controls.append(ft.Text(value=listdir(r'C:\Users\Cliente\Pictures\Saved Pictures')[i]))
+        for i in range(0, len(listdir(self.filePath.value))):
+            self.fileWidget.controls.append(ft.Text(value=listdir(self.filePath.value)[i]))    
 
 
         self.currentTime = ft.Text("00:00")
@@ -29,7 +33,16 @@ class PlayerView:
         self.previousButton = ft.IconButton(icon=ft.icons.SKIP_PREVIOUS_ROUNDED, icon_size=50)
         self.nextButton = ft.IconButton(icon=ft.icons.SKIP_NEXT_ROUNDED, icon_size=50)
         self.modeButton = ft.IconButton(icon=ft.icons.REPEAT_ROUNDED, icon_size=50, on_click=self.modeClickEvent)
-        self.folderButton = ft.IconButton(icon=ft.icons.FOLDER_ROUNDED, icon_size=50)
+        self.folderButton = ft.IconButton(icon=ft.icons.FOLDER_ROUNDED, icon_size=50, on_click= lambda _:self.dirDialog.get_directory_path(initial_directory=r'C:\Users\Cliente\Documents\MediaCatcher\Audio'))
+
+    
+    def getFilePath(self, e: ft.FilePickerResultEvent):
+        self.filePath.value = e.path if e.path else r'C:\Users\Cliente\Documents\MediaCatcher\Audio'
+        self.filePath.update()
+        self.fileWidget.controls.clear()
+        for i in range(0, len(listdir(self.filePath.value))):
+            self.fileWidget.controls.append(ft.Text(value=listdir(self.filePath.value)[i]))    
+        self.fileWidget.update()
 
     def playClickEvent(self, e):
         e.control.icon = ft.icons.PAUSE_ROUNDED if e.control.icon == ft.icons.PLAY_ARROW_ROUNDED else ft.icons.PLAY_ARROW_ROUNDED
@@ -43,15 +56,23 @@ class PlayerView:
             case ft.icons.SHUFFLE_ROUNDED: e.control.icon = ft.icons.REPEAT_ROUNDED
         e.control.update()
 
-    def returnView(self):
+    def returnView(self, playerDialog):
+        self.dirDialog = playerDialog
         return ft.Column(
             [
+            #files widget
             ft.Container(
                 bgcolor=ft.colors.TRANSPARENT,
                 width=765,
                 height=350,
-                content=self.fileWidget
+                content=ft.Column(
+                    [
+                    self.filePath,
+                    self.fileWidget
+                    ]
+                )
             ),
+            #time slider widget
             ft.Container(
                 bgcolor=ft.colors.TRANSPARENT,
                 width=765,
@@ -65,6 +86,7 @@ class PlayerView:
                     alignment=ft.MainAxisAlignment.CENTER
                 )
             ),
+            #buttons widget
             ft.Container(
                 bgcolor=ft.colors.TRANSPARENT,
                 width=765,
@@ -83,13 +105,3 @@ class PlayerView:
             ],
             spacing=5
         )
-
-def playerView():
-    view = ft.Column(
-        [
-            ft.Text(value="aqui eh player"),
-            
-        ]
-    )
-
-    return view

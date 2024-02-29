@@ -1,5 +1,5 @@
 import flet as ft
-from source.widgets import pallete
+from source.tools import pallete
 
 debug = True
 
