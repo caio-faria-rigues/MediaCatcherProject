@@ -34,6 +34,12 @@ class MediaCatcher(ft.UserControl):
         self.page.overlay.append(self.playerDirDialog)
         self.page.overlay.append(self.optionalDirDialog)
 
+        self.audio = ft.Audio(src=r'../source/blank.mp3')
+
+        self.page.overlay.append(self.audio)
+        print(self.page.overlay)
+        
+
         self.mainContainer = ft.Container(
                 expand=False,
                 alignment=ft.alignment.top_left,
@@ -159,9 +165,10 @@ class MediaCatcher(ft.UserControl):
             print("Selected destination:", e.control.selected_index)
             match e.control.selected_index:
                 case 0: self.mainContainer.content = self.downloaderView.returnView(self.customDirDialog)
-                case 1: self.mainContainer.content = self.playerView.returnView(self.playerDirDialog)
+                case 1: self.mainContainer.content = self.playerView.returnView(self.playerDirDialog, self.page, self.audio)
                 case 2: self.mainContainer.content = self.settingsView.returnView(self.audioDirDialog, self.videoDirDialog, self.optionalDirDialog)
             self.mainContainer.update()
+        print(self.page.overlay)
 
         self.prevIndex = e.control.selected_index
 

@@ -5,18 +5,24 @@ from os import listdir
 
 class PlayerView:
     def __init__(self) -> None:
+        self.currentAudio = r'../source/blank.mp3'
+        self.overlayed = False
+        self.currentVolume = 0
         self.dirDialog = None
         self.filePath = ft.Text(value=r'C:\Users\Cliente\Documents\MediaCatcher\Audio', size=15)
         self.fileWidget = ft.Column(
             scroll=ft.ScrollMode.ALWAYS,
-            spacing=20,
+            spacing=5,
             height=300,
             width=765
         )
 
-        for i in range(0, len(listdir(self.filePath.value))):
-            self.fileWidget.controls.append(ft.Text(value=listdir(self.filePath.value)[i]))    
 
+        for i in listdir(self.filePath.value):
+            if i.endswith(('.mp3')):
+                self.fileWidget.controls.append(ft.TextButton(text=i, on_click=self.fileClickEvent))
+
+        #self.audio = ft.Audio(src=r'../source/blank.mp3')
 
         self.currentTime = ft.Text("00:00")
         self.endTime = ft.Text("00:00")
@@ -40,12 +46,21 @@ class PlayerView:
         self.filePath.value = e.path if e.path else r'C:\Users\Cliente\Documents\MediaCatcher\Audio'
         self.filePath.update()
         self.fileWidget.controls.clear()
-        for i in range(0, len(listdir(self.filePath.value))):
-            self.fileWidget.controls.append(ft.Text(value=listdir(self.filePath.value)[i]))    
+        for i in listdir(self.filePath.value):
+            if i.endswith(('.mp3')):
+                self.fileWidget.controls.append(ft.TextButton(text=i, on_click=self.fileClickEvent))
         self.fileWidget.update()
 
     def playClickEvent(self, e):
-        e.control.icon = ft.icons.PAUSE_ROUNDED if e.control.icon == ft.icons.PLAY_ARROW_ROUNDED else ft.icons.PLAY_ARROW_ROUNDED
+        if e.control.icon == ft.icons.PLAY_ARROW_ROUNDED:
+            self.audio.resume()
+            print("tocando")
+            e.control.icon = ft.icons.PAUSE_ROUNDED
+        else:
+            self.audio.pause()
+            print("pausado")
+            e.control.icon = ft.icons.PLAY_ARROW_ROUNDED
+        #e.control.icon = ft.icons.PAUSE_ROUNDED if e.control.icon == ft.icons.PLAY_ARROW_ROUNDED else ft.icons.PLAY_ARROW_ROUNDED
         e.control.update()
         self.fileWidget.update()
 
@@ -56,7 +71,23 @@ class PlayerView:
             case ft.icons.SHUFFLE_ROUNDED: e.control.icon = ft.icons.REPEAT_ROUNDED
         e.control.update()
 
-    def returnView(self, playerDialog):
+    def fileClickEvent(self, e):
+        self.currentAudio = self.filePath.value + "\\" + e.control.text
+        self.audio.release()
+        self.audioPlaying()
+
+    def audioPlaying(self):
+        self.audio.src = self.currentAudio
+        print(self.audio.src)
+        self.audio.play()
+        self.playButton.icon = ft.icons.PAUSE_ROUNDED
+        self.playButton.update()
+        self.audio.update()
+        print(self.audio.get_duration())
+
+    def returnView(self, playerDialog, page, audioOverlay):
+        self.upperPage = page
+        self.audio = audioOverlay
         self.dirDialog = playerDialog
         return ft.Column(
             [
