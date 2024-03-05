@@ -6,7 +6,10 @@ from os import listdir
 class PlayerView:
     def __init__(self) -> None:
         self.currentAudio = r'../source/blank.mp3'
+        self.timeUpdating = False
         self.overlayed = False
+        self.file = ""
+        self.previousFile = ""
         self.currentVolume = 0
         self.dirDialog = None
         self.filePath = ft.Text(value=r'C:\Users\Cliente\Documents\MediaCatcher\Audio', size=15)
@@ -22,10 +25,8 @@ class PlayerView:
             if i.endswith(('.mp3')):
                 self.fileWidget.controls.append(ft.TextButton(text=i, on_click=self.fileClickEvent))
 
-        #self.audio = ft.Audio(src=r'../source/blank.mp3')
-
-        self.currentTime = ft.Text("00:00")
-        self.endTime = ft.Text("00:00")
+        self.currentTime = ft.Text("0:00")
+        self.endTime = ft.Text("0:00")
         self.musicSlider = ft.Slider(
             width=500,
             min=0,
@@ -33,6 +34,8 @@ class PlayerView:
             divisions=100,
             label="{value}",
             active_color=pallete[0],
+            on_change_start=self.timeIsUpdating,
+            on_change_end=self.timeUpdate,
         )
 
         self.playButton = ft.IconButton(icon=ft.icons.PLAY_ARROW_ROUNDED, icon_size=50, on_click=self.playClickEvent)
@@ -60,7 +63,6 @@ class PlayerView:
             self.audio.pause()
             print("pausado")
             e.control.icon = ft.icons.PLAY_ARROW_ROUNDED
-        #e.control.icon = ft.icons.PAUSE_ROUNDED if e.control.icon == ft.icons.PLAY_ARROW_ROUNDED else ft.icons.PLAY_ARROW_ROUNDED
         e.control.update()
         self.fileWidget.update()
 
@@ -72,21 +74,55 @@ class PlayerView:
         e.control.update()
 
     def fileClickEvent(self, e):
-        self.currentAudio = self.filePath.value + "\\" + e.control.text
+        if e.control.text == self.previousFile:
+            self.audio.play()
+            return
         self.audio.release()
-        self.audioPlaying()
-
-    def audioPlaying(self):
+        self.currentAudio = self.filePath.value + "\\" + e.control.text
         self.audio.src = self.currentAudio
         print(self.audio.src)
         self.audio.play()
         self.playButton.icon = ft.icons.PAUSE_ROUNDED
         self.playButton.update()
+        self.audio.on_duration_changed=self.audioChange
+        self.audio.on_position_changed=self.sliderChange
         self.audio.update()
-        print(self.audio.get_duration())
 
-    def returnView(self, playerDialog, page, audioOverlay):
-        self.upperPage = page
+        self.previousFile = e.control.text
+
+    def sliderChange(self, e):
+        if self.timeUpdating == False:
+            self.seconds = int(int(e.data)/1000)
+            print("MUDOU: ", self.seconds)
+            self.musicSlider.value = self.seconds
+            zero = 0 if self.seconds<10 else ""
+            self.currentTime.value = f"{int(self.seconds/60)}:{zero}{int(self.seconds%60)}"
+            self.currentTime.update()
+            self.musicSlider.update()
+
+    def timeUpdate(self, e):
+        zero = 0 if e.control.value<10 else ""
+        self.currentTime.value = f"{int(e.control.value/60)}:{zero}{int(e.control.value%60)}"
+        self.audio.seek(self.seconds*1000 + int(e.control.value-self.seconds)*1000)
+        print(self.seconds*1000 + int(e.control.value-self.seconds)*1000)
+        self.seconds = 0
+        self.currentTime.update()
+        self.timeUpdating = False
+
+    def timeIsUpdating(self, e):
+        self.timeUpdating = True
+
+    def audioChange(self, e):
+        print("DURATION:", e.data)
+        seconds = int(int(e.data)/1000)
+        zero = 0 if seconds<10 else ""
+        self.endTime.value = f"{int(seconds/60)}:{zero}{int(seconds%60)}"
+        self.musicSlider.max = seconds
+        self.musicSlider.divisions = seconds
+        self.endTime.update()
+        self.musicSlider.update()
+
+    def returnView(self, playerDialog, audioOverlay):
         self.audio = audioOverlay
         self.dirDialog = playerDialog
         return ft.Column(
