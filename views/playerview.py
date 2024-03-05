@@ -13,6 +13,8 @@ class PlayerView:
         self.currentVolume = 0
         self.dirDialog = None
         self.filePath = ft.Text(value=r'C:\Users\Cliente\Documents\MediaCatcher\Audio', size=15)
+        self.nameDisplayed = ft.Text(size=15, max_lines=1, overflow=ft.TextOverflow.ELLIPSIS)
+        self.thumb = ft.Image(src=r'../source/images/generic_thumb.png', width=50, height=50)
         self.fileWidget = ft.Column(
             scroll=ft.ScrollMode.ALWAYS,
             spacing=5,
@@ -79,6 +81,7 @@ class PlayerView:
             return
         self.audio.release()
         self.currentAudio = self.filePath.value + "\\" + e.control.text
+        self.nameDisplayed.value = e.control.text
         self.audio.src = self.currentAudio
         print(self.audio.src)
         self.audio.play()
@@ -87,6 +90,7 @@ class PlayerView:
         self.audio.on_duration_changed=self.audioChange
         self.audio.on_position_changed=self.sliderChange
         self.audio.update()
+        self.nameDisplayed.update()
 
         self.previousFile = e.control.text
 
@@ -131,7 +135,7 @@ class PlayerView:
             ft.Container(
                 bgcolor=ft.colors.TRANSPARENT,
                 width=765,
-                height=350,
+                height=340,
                 content=ft.Column(
                     [
                     self.filePath,
@@ -139,20 +143,32 @@ class PlayerView:
                     ]
                 )
             ),
-            #time slider widget
-            ft.Container(
-                bgcolor=ft.colors.TRANSPARENT,
-                width=765,
-                height=30,
-                content=ft.Row(
+            ft.Row(
+                [
+                self.thumb,
+                ft.Column(
                     [
-                    self.currentTime,
-                    self.musicSlider,
-                    self.endTime
-                    ],
-                    alignment=ft.MainAxisAlignment.CENTER
+                    self.nameDisplayed,
+                    #time slider widget
+                    ft.Container(
+                        bgcolor=ft.colors.TRANSPARENT,
+                        width=765,
+                        height=30,
+                        content=ft.Row(
+                            [
+                            self.currentTime,
+                            self.musicSlider,
+                            self.endTime
+                            ],
+                            alignment=ft.MainAxisAlignment.CENTER
+                        )
+                    ),
+                    ]
                 )
+                ],
+                spacing=10
             ),
+            
             #buttons widget
             ft.Container(
                 bgcolor=ft.colors.TRANSPARENT,
