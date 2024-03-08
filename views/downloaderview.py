@@ -18,7 +18,22 @@ class DownloaderView:
             icon=ft.icons.SEARCH_ROUNDED, 
             icon_size=40, 
             on_click=self.textFieldReturnerYoutube, 
-            icon_color=pallete[0])
+            icon_color=pallete[0]
+        )
+        self.downloadButton = ft.IconButton(
+            icon=ft.icons.DOWNLOAD, 
+            icon_size=40,
+            on_click=self.download,
+            icon_color=pallete[0]
+        )
+
+        self.downloadProgress = ft.ProgressRing(
+            height=40, 
+            width=40, 
+            bgcolor=pallete[0],
+            value=0.0,
+            visible=False,
+        )
 
         self.optionsSwitch = ft.Switch(
             label="Baixar Áudio", 
@@ -45,7 +60,7 @@ class DownloaderView:
                     options=
                         [
                         ft.dropdown.Option("mp3"), 
-                        ft.dropdown.Option("etc")
+                        ft.dropdown.Option("m4a")
                         ],
                     ),
                 ]
@@ -180,6 +195,12 @@ class DownloaderView:
         self.nameInput.update()
         self.timeEndInput.update()
 
+    def download(self, e):
+        if self.optionsSwitch.label == "Baixar Áudio":
+            audioDownloader(self.downloadUrl, self.nameInput.hint_text, self.audioOptions.controls[0].value, self.downloadProgress)
+        elif self.optionsSwitch.label == "Baixar Áudio":
+            videoDownloader(self.downloadUrl, self.nameInput.hint_text, self.videoOptions.controls[0].value, self.videoOptions.controls[1].value)
+    
     def hideAdvancedOptions(self, e):
         self.advancedOptions.visible = True if self.advancedOptions.visible == False else False
         self.advancedOptions.update()
@@ -214,7 +235,8 @@ class DownloaderView:
             ft.Row(
                 [
                 self.nameInput,
-                ft.IconButton(icon=ft.icons.DOWNLOAD, icon_size=40)
+                self.downloadButton,
+                self.downloadProgress,
                 ]
             ),
             ft.Row(
