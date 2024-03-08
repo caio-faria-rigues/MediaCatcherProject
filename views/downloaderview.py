@@ -31,6 +31,7 @@ class DownloaderView:
             height=40, 
             width=40, 
             bgcolor=pallete[0],
+            color=pallete[4],
             value=0.0,
             visible=False,
         )
@@ -52,18 +53,24 @@ class DownloaderView:
         self.audioOptions = ft.Row(
             [
             ft.Dropdown(
-                    label="Formato", 
-                    width=108, 
-                    height=65,
-                    scale=0.9, 
-                    border_color=ft.colors.TRANSPARENT,
-                    options=
-                        [
-                        ft.dropdown.Option("mp3"), 
-                        ft.dropdown.Option("m4a")
-                        ],
-                    ),
-                ]
+                label="Formato",
+                value="m4a",
+                width=108, 
+                height=65,
+                scale=0.9, 
+                border_color=ft.colors.TRANSPARENT,
+                options=
+                    [
+                    ft.dropdown.Option("m4a"), 
+                    ft.dropdown.Option("webm")
+                    ],
+            ),
+            ft.Checkbox(
+                label="Incluir Thumbnail",
+                value=True,
+                check_color=pallete[4]
+            )
+            ]
         )
         self.videoOptions = ft.Row(
             [
@@ -76,8 +83,7 @@ class DownloaderView:
                 options=
                     [
                     ft.dropdown.Option("mp4"), 
-                    ft.dropdown.Option("mwa"),
-                    ft.dropdown.Option("etc")
+                    ft.dropdown.Option("webm"),
                     ],
             ),
             ft.Dropdown(label="Resolução", 
@@ -87,11 +93,12 @@ class DownloaderView:
                 border_color=ft.colors.TRANSPARENT,
                 options=
                     [
-                    ft.dropdown.Option("240p"), 
-                    ft.dropdown.Option("360p"),
-                    ft.dropdown.Option("480p"),
-                    ft.dropdown.Option("720p"),
-                    ft.dropdown.Option("1080p")
+                    ft.dropdown.Option("144"),
+                    ft.dropdown.Option("240"), 
+                    ft.dropdown.Option("360"),
+                    ft.dropdown.Option("480"),
+                    ft.dropdown.Option("720"),
+                    ft.dropdown.Option("1080")
                     ],
                 )
             ]
@@ -101,13 +108,13 @@ class DownloaderView:
         self.timeSlider = ft.RangeSlider(
             min=0, 
             max=100, 
-            label="{value}%", 
+            label="{value}", 
             start_value=0, 
             end_value=100, 
             width=550, 
             divisions=100,
             on_change_end=self.timeSliderSubmit,
-            active_color=pallete[0],  
+            active_color=pallete[0],
         )
 
         self.timeStartInput = ft.TextField(
@@ -184,22 +191,24 @@ class DownloaderView:
         self.customPath.update()
 
     def textFieldReturnerYoutube(self, e):
-        self.requestContainer.content = ft.ProgressRing(height=50, width=40, bgcolor=pallete[0])
+        self.requestContainer.content = ft.ProgressRing(height=50, width=40, bgcolor=pallete[0], color=pallete[4])
         self.requestContainer.update()
         self.downloadUrl = self.urlInput.value
         title, duration, thumb = requestSourceInfo(self.downloadUrl)
         self.nameInput.hint_text = title
         self.timeEndInput.value = duration
+        self.timeSlider.max = self.timeSlider.end_value = self.timeSlider.divisions = duration
         self.requestContainer.content = ft.Image(src=thumb)
         self.requestContainer.update()
+        self.timeSlider.update()
         self.nameInput.update()
         self.timeEndInput.update()
 
     def download(self, e):
         if self.optionsSwitch.label == "Baixar Áudio":
-            audioDownloader(self.downloadUrl, self.nameInput.hint_text, self.audioOptions.controls[0].value, self.downloadProgress)
-        elif self.optionsSwitch.label == "Baixar Áudio":
-            videoDownloader(self.downloadUrl, self.nameInput.hint_text, self.videoOptions.controls[0].value, self.videoOptions.controls[1].value)
+            audioDownloader(self.downloadUrl, self.nameInput.hint_text, self.audioOptions.controls[0].value, self.audioOptions.controls[1].value, self.downloadProgress)
+        elif self.optionsSwitch.label == "Baixar Vídeo":
+            videoDownloader(self.downloadUrl, self.nameInput.hint_text, self.videoOptions.controls[0].value, self.videoOptions.controls[1].value, self.downloadProgress)
     
     def hideAdvancedOptions(self, e):
         self.advancedOptions.visible = True if self.advancedOptions.visible == False else False
@@ -223,7 +232,7 @@ class DownloaderView:
         self.dirDialog = customDirDialog
         return ft.Column(
             [
-            ft.Text(value="Link(URL):", width=500, text_align="LEFT", size=15),
+            ft.Text(value="URL:", width=500, text_align="LEFT", size=15),
             ft.Row(
                 [
                 self.urlInput,
