@@ -10,9 +10,9 @@ def requestSourceInfo(url):
         video_title = info_dict.get('title', None)
         thumb = info_dict.get("thumbnail", None)
         return video_title, duration, thumb
-    
 
-def audioDownloader(url, name, ext, thumb, ring):
+
+def audioDownloader(url, name, ext, thumb, timeStart, timeEnd, ring):
     def progress(status):
         if status['status'] == 'downloading':
             percentage = float(status['_percent_str'][7:12]) / 100.0
@@ -27,6 +27,8 @@ def audioDownloader(url, name, ext, thumb, ring):
     'ffmpeg_location': r'C:\Users\Cliente\Vs_projects\Python\Media Saver\test\ffmpeg.exe',
     'embedthumbnail': thumb,
     'progress_hooks': [progress],
+    'external_downloader': 'ffmpeg',
+    'external_downloader_args': {"ffmpeg": ["-ss", str(timeStart), "-to", str(timeEnd)]},
     'postprocessors': [{
         'key': 'FFmpegMetadata',
         'add_metadata': True,
@@ -46,7 +48,7 @@ def audioDownloader(url, name, ext, thumb, ring):
         error = ydl.download(url)
         #add error popup
 
-def videoDownloader(url, name, ext, res, ring):
+def videoDownloader(url, name, ext, res, timeStart, timeEnd, ring):
 
     def progress(status):
         if status['status'] == 'downloading':
@@ -59,7 +61,9 @@ def videoDownloader(url, name, ext, res, ring):
     'format': f'bestvideo[ext={ext}][height<={res}]+bestaudio[ext={ext}]/best[ext={ext}]',
     'outtmpl': f'{name}.%(ext)s',
     'ffmpeg_location': r'C:\Users\Cliente\Vs_projects\Python\Media Saver\test\ffmpeg.exe',
-    'progress_hooks': [progress]
+    'progress_hooks': [progress],
+    'external_downloader': 'ffmpeg',
+    'external_downloader_args': {"ffmpeg": ["-ss", str(timeStart), "-to", str(timeEnd)]} 
     }
 
     with YoutubeDL(ydl_opts) as ydl:

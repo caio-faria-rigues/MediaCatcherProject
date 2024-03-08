@@ -76,6 +76,7 @@ class DownloaderView:
             [
             ft.Dropdown(
                 label="Formato", 
+                value="mp4",
                 width=108, 
                 height=65,
                 scale=0.9, 
@@ -86,7 +87,9 @@ class DownloaderView:
                     ft.dropdown.Option("webm"),
                     ],
             ),
-            ft.Dropdown(label="Resolução", 
+            ft.Dropdown(
+                label="Resolução", 
+                value="1080",
                 width=120, 
                 height=65,
                 scale=0.9, 
@@ -206,9 +209,25 @@ class DownloaderView:
 
     def download(self, e):
         if self.optionsSwitch.label == "Baixar Áudio":
-            audioDownloader(self.downloadUrl, self.nameInput.hint_text, self.audioOptions.controls[0].value, self.audioOptions.controls[1].value, self.downloadProgress)
+            audioDownloader(
+                url=self.downloadUrl, 
+                name=self.nameInput.hint_text, 
+                ext=self.audioOptions.controls[0].value, 
+                thumb=self.audioOptions.controls[1].value, 
+                timeStart=self.timeStartInput.value,
+                timeEnd=self.timeEndInput.value,
+                ring=self.downloadProgress
+            )
         elif self.optionsSwitch.label == "Baixar Vídeo":
-            videoDownloader(self.downloadUrl, self.nameInput.hint_text, self.videoOptions.controls[0].value, self.videoOptions.controls[1].value, self.downloadProgress)
+            videoDownloader(
+                url=self.downloadUrl, 
+                name=self.nameInput.hint_text, 
+                ext=self.videoOptions.controls[0].value, 
+                res=self.videoOptions.controls[1].value,
+                timeStart=self.timeStartInput.value,
+                timeEnd=self.timeEndInput.value, 
+                ring=self.downloadProgress
+            )
     
     def hideAdvancedOptions(self, e):
         self.advancedOptions.visible = True if self.advancedOptions.visible == False else False
