@@ -1,5 +1,6 @@
 import flet as ft
 from source.tools import pallete
+from app.ddl import *
 
 debug = True
 
@@ -7,8 +8,17 @@ class DownloaderView:
     def __init__(self) -> None:
         self.customPath = ft.Text(value=r'C:\Users\Cliente\Documents\MediaCatcher\Audio', size=15)
         self.urlInput = ft.TextField(hint_text="link", width=600, border_radius=15,bgcolor=pallete[0])
+        self.nameInput = ft.TextField(hint_text="Nome do arquivo", width=600, border_radius=15,bgcolor=pallete[0])
         self.downloadUrl = self.urlInput.value
         self.dirDialog = None
+
+        self.requestContainer = ft.Container(width=50, height=50)
+
+        self.searchButton = ft.IconButton(
+            icon=ft.icons.SEARCH_ROUNDED, 
+            icon_size=40, 
+            on_click=self.textFieldReturnerYoutube, 
+            icon_color=pallete[0])
 
         self.optionsSwitch = ft.Switch(
             label="Baixar Áudio", 
@@ -159,8 +169,16 @@ class DownloaderView:
         self.customPath.update()
 
     def textFieldReturnerYoutube(self, e):
+        self.requestContainer.content = ft.ProgressRing(height=50, width=40, bgcolor=pallete[0])
+        self.requestContainer.update()
         self.downloadUrl = self.urlInput.value
-        print(self.downloadUrl) if debug else None
+        title, duration, thumb = requestSourceInfo(self.downloadUrl)
+        self.nameInput.hint_text = title
+        self.timeEndInput.value = duration
+        self.requestContainer.content = ft.Image(src=thumb)
+        self.requestContainer.update()
+        self.nameInput.update()
+        self.timeEndInput.update()
 
     def hideAdvancedOptions(self, e):
         self.advancedOptions.visible = True if self.advancedOptions.visible == False else False
@@ -188,13 +206,14 @@ class DownloaderView:
             ft.Row(
                 [
                 self.urlInput,
-                ft.IconButton(icon=ft.icons.SEARCH_ROUNDED, icon_size=40, on_click=self.textFieldReturnerYoutube, icon_color=pallete[0])
+                self.searchButton,
+                self.requestContainer,
                 ]
             ),
             ft.Text(value="Nome do Arquivo:", width=500, text_align="LEFT", size=15),
             ft.Row(
                 [
-                ft.TextField(hint_text="Nome do arquivo", width=600, border_radius=15,bgcolor=pallete[0]),
+                self.nameInput,
                 ft.IconButton(icon=ft.icons.DOWNLOAD, icon_size=40)
                 ]
             ),

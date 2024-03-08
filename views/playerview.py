@@ -7,18 +7,16 @@ class PlayerView:
     def __init__(self) -> None:
         self.currentAudio = r'../source/blank.mp3'
         self.timeUpdating = False
-        self.overlayed = False
-        self.file = ""
         self.previousFile = ""
         self.currentVolume = 0
         self.dirDialog = None
         self.filePath = ft.Text(value=r'C:\Users\Cliente\Documents\MediaCatcher\Audio', size=15)
         self.nameDisplayed = ft.Text(size=15, max_lines=1, overflow=ft.TextOverflow.ELLIPSIS)
-        self.thumb = ft.Image(src=r'../source/images/generic_thumb.png', width=50, height=50)
+        self.thumb = ft.Image(src=r'../source/images/generic_thumb.png', width=100, height=100)
         self.fileWidget = ft.Column(
             scroll=ft.ScrollMode.ALWAYS,
             spacing=5,
-            height=300,
+            height=250,
             width=765
         )
 
@@ -38,6 +36,17 @@ class PlayerView:
             active_color=pallete[0],
             on_change_start=self.timeIsUpdating,
             on_change_end=self.timeUpdate,
+        )
+        self.volumeSlider = ft.Slider(
+            width=140,
+            height=20,
+            min=0,
+            max=10,
+            value=10,
+            divisions=10,
+            label="{value}",
+            active_color=pallete[0],
+            on_change_end=self.changeVolume,
         )
 
         self.playButton = ft.IconButton(icon=ft.icons.PLAY_ARROW_ROUNDED, icon_size=50, on_click=self.playClickEvent)
@@ -126,6 +135,10 @@ class PlayerView:
         self.endTime.update()
         self.musicSlider.update()
 
+    def changeVolume(self, e):
+        self.audio.volume = float(e.data)/10
+        self.audio.update()
+
     def returnView(self, playerDialog, audioOverlay):
         self.audio = audioOverlay
         self.dirDialog = playerDialog
@@ -135,7 +148,7 @@ class PlayerView:
             ft.Container(
                 bgcolor=ft.colors.TRANSPARENT,
                 width=765,
-                height=340,
+                height=325,
                 content=ft.Column(
                     [
                     self.filePath,
@@ -152,7 +165,7 @@ class PlayerView:
                     #time slider widget
                     ft.Container(
                         bgcolor=ft.colors.TRANSPARENT,
-                        width=765,
+                        width=500,
                         height=30,
                         content=ft.Row(
                             [
@@ -163,28 +176,30 @@ class PlayerView:
                             alignment=ft.MainAxisAlignment.CENTER
                         )
                     ),
+                    ft.Container(
+                        bgcolor=ft.colors.TRANSPARENT,
+                        width=650,
+                        height=60,
+                        content=ft.Row(
+                            [
+                            self.modeButton,
+                            self.previousButton,
+                            self.playButton,
+                            self.nextButton,
+                            self.folderButton,
+                            self.volumeSlider,
+                            ],
+                            alignment=ft.MainAxisAlignment.CENTER
+                        )
+                    )
                     ]
                 )
                 ],
-                spacing=10
+                spacing=0
             ),
             
             #buttons widget
-            ft.Container(
-                bgcolor=ft.colors.TRANSPARENT,
-                width=765,
-                height=60,
-                content=ft.Row(
-                    [
-                    self.modeButton,
-                    self.previousButton,
-                    self.playButton,
-                    self.nextButton,
-                    self.folderButton,
-                    ],
-                    alignment=ft.MainAxisAlignment.CENTER
-                )
-            )
+            
             ],
             spacing=5
         )
