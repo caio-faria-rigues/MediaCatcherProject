@@ -22,7 +22,7 @@ class PlayerView:
 
 
         for i in listdir(self.filePath.value):
-            if i.endswith(('.mp3')):
+            if i.endswith(('.mp3', '.m4a', '.webm')):
                 self.fileWidget.controls.append(ft.TextButton(text=i, on_click=self.fileClickEvent))
 
         self.currentTime = ft.Text("0:00")

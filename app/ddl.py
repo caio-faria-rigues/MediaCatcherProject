@@ -1,5 +1,6 @@
 from yt_dlp import YoutubeDL
-from bs4 import BeautifulSoup
+from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
+from os import remove
 from re import sub
 
 def requestSourceInfo(url):
@@ -20,15 +21,15 @@ def audioDownloader(url, name, ext, thumb, timeStart, timeEnd, ring):
             ring.value = percentage
             ring.update()
 
+    name = sub(r'[\\/:*?"<>|]', '', name)
+
     ydl_opts = {
     'format': f'bestaudio[ext={ext}]',
-    'outtmpl': f'{name}.%(ext)s',
+    'outtmpl': f't{name}.%(ext)s',
     'writethumbnail': thumb,
     'ffmpeg_location': r'C:\Users\Cliente\Vs_projects\Python\Media Saver\test\ffmpeg.exe',
     'embedthumbnail': thumb,
     'progress_hooks': [progress],
-    'external_downloader': 'ffmpeg',
-    'external_downloader_args': {"ffmpeg": ["-ss", str(timeStart), "-to", str(timeEnd)]},
     'postprocessors': [{
         'key': 'FFmpegMetadata',
         'add_metadata': True,
@@ -48,6 +49,9 @@ def audioDownloader(url, name, ext, thumb, timeStart, timeEnd, ring):
         error = ydl.download(url)
         #add error popup
 
+    ffmpeg_extract_subclip(f't{name}.{ext}', timeStart, timeEnd, targetname=f"{name}.{ext}")
+    remove(f't{name}.{ext}')
+
 def videoDownloader(url, name, ext, res, timeStart, timeEnd, ring):
 
     def progress(status):
@@ -57,14 +61,17 @@ def videoDownloader(url, name, ext, res, timeStart, timeEnd, ring):
             ring.value = percentage
             ring.update()
 
+    name = sub(r'[\\/:*?"<>|]', '', name)
+
     ydl_opts = {
     'format': f'bestvideo[ext={ext}][height<={res}]+bestaudio[ext={ext}]/best[ext={ext}]',
-    'outtmpl': f'{name}.%(ext)s',
+    'outtmpl': f't{name}.%(ext)s',
     'ffmpeg_location': r'C:\Users\Cliente\Vs_projects\Python\Media Saver\test\ffmpeg.exe',
     'progress_hooks': [progress],
-    'external_downloader': 'ffmpeg',
-    'external_downloader_args': {"ffmpeg": ["-ss", str(timeStart), "-to", str(timeEnd)]} 
     }
 
     with YoutubeDL(ydl_opts) as ydl:
         error = ydl.download(url)
+
+    ffmpeg_extract_subclip(f't{name}.{ext}', timeStart, timeEnd, targetname=f"{name}.{ext}")
+    remove(f't{name}.{ext}')

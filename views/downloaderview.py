@@ -214,8 +214,8 @@ class DownloaderView:
                 name=self.nameInput.hint_text, 
                 ext=self.audioOptions.controls[0].value, 
                 thumb=self.audioOptions.controls[1].value, 
-                timeStart=self.timeStartInput.value,
-                timeEnd=self.timeEndInput.value,
+                timeStart=float(self.timeStartInput.value),
+                timeEnd=float(self.timeEndInput.value),
                 ring=self.downloadProgress
             )
         elif self.optionsSwitch.label == "Baixar Vídeo":
@@ -224,8 +224,8 @@ class DownloaderView:
                 name=self.nameInput.hint_text, 
                 ext=self.videoOptions.controls[0].value, 
                 res=self.videoOptions.controls[1].value,
-                timeStart=self.timeStartInput.value,
-                timeEnd=self.timeEndInput.value, 
+                timeStart=float(self.timeStartInput.value),
+                timeEnd=float(self.timeEndInput.value), 
                 ring=self.downloadProgress
             )
     
