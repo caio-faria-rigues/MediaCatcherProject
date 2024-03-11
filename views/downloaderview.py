@@ -1,5 +1,5 @@
 import flet as ft
-from source.tools import pallete
+from source.tools import pallete, readTOML
 from app.ddl import *
 
 debug = True
@@ -121,7 +121,7 @@ class DownloaderView:
         )
 
         self.timeStartInput = ft.TextField(
-            hint_text="start",
+            hint_text="0.0",
             bgcolor=pallete[0],
             width=50, 
             height=30,
@@ -139,7 +139,7 @@ class DownloaderView:
         )
 
         self.timeEndInput = ft.TextField(
-            hint_text="end",
+            hint_text="0.0",
             bgcolor=pallete[0],
             width=50, 
             height=30,
@@ -162,7 +162,7 @@ class DownloaderView:
                 ft.Text("Caminho Personalizado:", size=13),
                 ft.Row(
                     [
-                    ft.IconButton(icon=ft.icons.FOLDER_ROUNDED, icon_size=30, on_click= lambda _:self.dirDialog.get_directory_path(initial_directory=r'C:\Users\Cliente\Documents\MediaCatcher\Audio')),
+                    ft.IconButton(icon=ft.icons.FOLDER_ROUNDED, icon_size=30, on_click= lambda _:self.dirDialog.get_directory_path(initial_directory=r'C:\Users\Cliente\Documents\MediaCatcher')),
                     self.customPath,
                     ]
                 ),
@@ -182,12 +182,15 @@ class DownloaderView:
     def changeOptions(self, e):
         if self.currentOptions.content == self.audioOptions:
             self.currentOptions.content = self.videoOptions
+            self.customPath.value = readTOML("video", "default", "path")
             self.optionsSwitch.label = "Baixar Vídeo"
         else:
             self.currentOptions.content = self.audioOptions
+            self.customPath.value = readTOML("audio", "default", "path")
             self.optionsSwitch.label = "Baixar Áudio"
         self.currentOptions.update()
         self.optionsSwitch.update()
+        self.customPath.update()
 
     def getCustomDir(self, e: ft.FilePickerResultEvent):
         self.customPath.value = e.path if e.path else r'C:\Users\Cliente\Documents\MediaCatcher\Audio'
@@ -211,17 +214,18 @@ class DownloaderView:
         if self.optionsSwitch.label == "Baixar Áudio":
             audioDownloader(
                 url=self.downloadUrl, 
-                name=self.nameInput.hint_text, 
+                name=self.nameInput.hint_text if self.nameInput.value == "" else self.nameInput.value, 
                 ext=self.audioOptions.controls[0].value, 
                 thumb=self.audioOptions.controls[1].value, 
                 timeStart=float(self.timeStartInput.value),
                 timeEnd=float(self.timeEndInput.value),
-                ring=self.downloadProgress
+                ring=self.downloadProgress,
+                path=self.customPath.value
             )
         elif self.optionsSwitch.label == "Baixar Vídeo":
             videoDownloader(
                 url=self.downloadUrl, 
-                name=self.nameInput.hint_text, 
+                name=self.nameInput.hint_text if self.nameInput.value == "" else self.nameInput.value, 
                 ext=self.videoOptions.controls[0].value, 
                 res=self.videoOptions.controls[1].value,
                 timeStart=float(self.timeStartInput.value),

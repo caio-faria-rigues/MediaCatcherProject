@@ -7,11 +7,11 @@ verson = "0.1.0"
 [video.default]
 resolution = "1080p"
 format = "MP4"
-path = "path/to/folder"
+path = "C:\\Users\\Cliente\\Documents\\MediaCatcher\\Video"
 
 [audio.default]
-format = "MP3"
-path = "C:\\Users\\Cliente\\Pictures\\Di Cria\\Padua Refference"
+format = "M4A"
+path = "C:\\Users\\Cliente\\Documents\\MediaCatcher\\Audio"
 
 [optional.default]
-path = "path/to/folder"
+path = "C:\\Users\\Cliente\\Documents\\MediaCatcher"

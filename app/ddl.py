@@ -2,6 +2,7 @@ from yt_dlp import YoutubeDL
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from os import remove
 from re import sub
+from source.tools import readTOML
 
 def requestSourceInfo(url):
     opts = {}
@@ -13,7 +14,7 @@ def requestSourceInfo(url):
         return video_title, duration, thumb
 
 
-def audioDownloader(url, name, ext, thumb, timeStart, timeEnd, ring):
+def audioDownloader(url, name, ext, thumb, timeStart, timeEnd, ring, path):
     def progress(status):
         if status['status'] == 'downloading':
             percentage = float(status['_percent_str'][7:12]) / 100.0
@@ -22,10 +23,11 @@ def audioDownloader(url, name, ext, thumb, timeStart, timeEnd, ring):
             ring.update()
 
     name = sub(r'[\\/:*?"<>|]', '', name)
+    cache_path = r'C:\Users\Cliente\Documents\MediaCatcher\.cache'
 
     ydl_opts = {
     'format': f'bestaudio[ext={ext}]',
-    'outtmpl': f't{name}.%(ext)s',
+    'outtmpl': f'{cache_path}\\t{name}.{ext}',
     'writethumbnail': thumb,
     'ffmpeg_location': r'C:\Users\Cliente\Vs_projects\Python\Media Saver\test\ffmpeg.exe',
     'embedthumbnail': thumb,
@@ -49,8 +51,9 @@ def audioDownloader(url, name, ext, thumb, timeStart, timeEnd, ring):
         error = ydl.download(url)
         #add error popup
 
-    ffmpeg_extract_subclip(f't{name}.{ext}', timeStart, timeEnd, targetname=f"{name}.{ext}")
-    remove(f't{name}.{ext}')
+    ffmpeg_extract_subclip(f'{cache_path}\\t{name}.{ext}', timeStart, timeEnd, targetname=f"{path}\\{name}.{ext}")
+    print(f"file added to {path}\\{name}.{ext}")
+    remove(f'{cache_path}\\t{name}.{ext}')
 
 def videoDownloader(url, name, ext, res, timeStart, timeEnd, ring):
 

@@ -9,3 +9,7 @@ def updateTOML(e=None, parent=None, child=None, parameter=None):
     f = open(r'.\data\config.toml','w')
     toml.dump(config, f)
     f.close()
+
+def readTOML(parent=None, child=None, parameter=None):
+    config = toml.load(r'.\data\config.toml')
+    return config[parent][child][parameter]
