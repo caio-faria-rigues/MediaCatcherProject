@@ -1,6 +1,8 @@
 import requests
 import toml
 
+DEBUG = True
+
 pallete = ["#8fa5e3", "#9285cc","#5C6BC0","#5d55d5", "#533eab", "#4929cf", "#2b2640", "#8c74f2"]
 
 def updateTOML(e=None, parent=None, child=None, parameter=None):

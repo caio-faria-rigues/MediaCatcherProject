@@ -1,11 +1,13 @@
 import flet as ft
-from source.tools import pallete
+from source.tools import DEBUG, pallete
 from os import listdir
+from random import randint
 
 
 class PlayerView:
     def __init__(self) -> None:
         self.currentAudio = r'../source/blank.mp3'
+        self.currentAudioControl = None
         self.timeUpdating = False
         self.previousFile = ""
         self.currentVolume = 0
@@ -49,11 +51,11 @@ class PlayerView:
             on_change_end=self.changeVolume,
         )
 
-        self.playButton = ft.IconButton(icon=ft.icons.PLAY_ARROW_ROUNDED, icon_size=50, on_click=self.playClickEvent)
-        self.previousButton = ft.IconButton(icon=ft.icons.SKIP_PREVIOUS_ROUNDED, icon_size=50)
-        self.nextButton = ft.IconButton(icon=ft.icons.SKIP_NEXT_ROUNDED, icon_size=50)
-        self.modeButton = ft.IconButton(icon=ft.icons.REPEAT_ROUNDED, icon_size=50, on_click=self.modeClickEvent)
-        self.folderButton = ft.IconButton(icon=ft.icons.FOLDER_ROUNDED, icon_size=50, on_click= lambda _:self.dirDialog.get_directory_path(initial_directory=r'C:\Users\Cliente\Documents\MediaCatcher\Audio'))
+        self.playButton = ft.IconButton(icon=ft.icons.PLAY_ARROW_ROUNDED, icon_size=50, on_click=self.playClickEvent, icon_color=pallete[0])
+        self.previousButton = ft.IconButton(icon=ft.icons.SKIP_PREVIOUS_ROUNDED, icon_size=50, icon_color=pallete[0], on_click=self.previousClickEvent)
+        self.nextButton = ft.IconButton(icon=ft.icons.SKIP_NEXT_ROUNDED, icon_size=50, icon_color=pallete[0], on_click=self.nextClickEvent)
+        self.modeButton = ft.IconButton(icon=ft.icons.REPEAT_ROUNDED, icon_size=50, on_click=self.modeClickEvent, icon_color=pallete[0])
+        self.folderButton = ft.IconButton(icon=ft.icons.FOLDER_ROUNDED, icon_size=50, on_click= lambda _:self.dirDialog.get_directory_path(initial_directory=r'C:\Users\Cliente\Documents\MediaCatcher\Audio'), icon_color=pallete[0])
 
     
     def getFilePath(self, e: ft.FilePickerResultEvent):
@@ -61,21 +63,35 @@ class PlayerView:
         self.filePath.update()
         self.fileWidget.controls.clear()
         for i in listdir(self.filePath.value):
-            if i.endswith(('.mp3')):
+            if i.endswith(('.mp3', '.m4a', '.webm')):
                 self.fileWidget.controls.append(ft.TextButton(text=i, on_click=self.fileClickEvent))
         self.fileWidget.update()
 
     def playClickEvent(self, e):
         if e.control.icon == ft.icons.PLAY_ARROW_ROUNDED:
             self.audio.resume()
-            print("tocando")
+            if DEBUG: print("tocando")
             e.control.icon = ft.icons.PAUSE_ROUNDED
         else:
             self.audio.pause()
-            print("pausado")
+            if DEBUG: print("pausado")
             e.control.icon = ft.icons.PLAY_ARROW_ROUNDED
         e.control.update()
         self.fileWidget.update()
+
+    def nextClickEvent(self, e):
+        match self.modeButton.icon:
+            case ft.icons.REPEAT_ROUNDED: self.repeatDefaultNext()
+            case ft.icons.REPEAT_ONE_ROUNDED: self.repeatLoop()
+            case ft.icons.SHUFFLE_ROUNDED: e.control.icon = self.repeatRandom()
+        if DEBUG: print("indice: ", self.index)
+
+    def previousClickEvent(self, e):
+        match self.modeButton.icon:
+            case ft.icons.REPEAT_ROUNDED: self.repeatDefaultPrevious()
+            case ft.icons.REPEAT_ONE_ROUNDED: self.repeatLoop()
+            case ft.icons.SHUFFLE_ROUNDED: e.control.icon = self.repeatRandom()
+        if DEBUG: print("indice: ", self.index)
 
     def modeClickEvent(self, e):
         match e.control.icon:
@@ -90,9 +106,11 @@ class PlayerView:
             return
         self.audio.release()
         self.currentAudio = self.filePath.value + "\\" + e.control.text
+        self.currentAudioControl = e.control
+        self.index = self.fileWidget.controls.index(self.currentAudioControl)
         self.nameDisplayed.value = e.control.text
         self.audio.src = self.currentAudio
-        print(self.audio.src)
+        if DEBUG: print(self.audio.src)
         self.audio.play()
         self.playButton.icon = ft.icons.PAUSE_ROUNDED
         self.playButton.update()
@@ -106,18 +124,23 @@ class PlayerView:
     def sliderChange(self, e):
         if self.timeUpdating == False:
             self.seconds = int(int(e.data)/1000)
-            print("MUDOU: ", self.seconds)
             self.musicSlider.value = self.seconds
             zero = 0 if self.seconds<10 else ""
             self.currentTime.value = f"{int(self.seconds/60)}:{zero}{int(self.seconds%60)}"
             self.currentTime.update()
             self.musicSlider.update()
 
+        if self.currentTime.value == self.endTime.value:
+            match self.modeButton.icon:
+                case ft.icons.REPEAT_ROUNDED: self.repeatDefaultNext()
+                case ft.icons.REPEAT_ONE_ROUNDED: self.repeatLoop()
+                case ft.icons.SHUFFLE_ROUNDED: self.repeatRandom()
+
     def timeUpdate(self, e):
         zero = 0 if e.control.value<10 else ""
         self.currentTime.value = f"{int(e.control.value/60)}:{zero}{int(e.control.value%60)}"
         self.audio.seek(self.seconds*1000 + int(e.control.value-self.seconds)*1000)
-        print(self.seconds*1000 + int(e.control.value-self.seconds)*1000)
+        if DEBUG: print(self.seconds*1000 + int(e.control.value-self.seconds)*1000)
         self.seconds = 0
         self.currentTime.update()
         self.timeUpdating = False
@@ -126,7 +149,7 @@ class PlayerView:
         self.timeUpdating = True
 
     def audioChange(self, e):
-        print("DURATION:", e.data)
+        if DEBUG: print("DURATION:", e.data)
         seconds = int(int(e.data)/1000)
         zero = 0 if seconds<10 else ""
         self.endTime.value = f"{int(seconds/60)}:{zero}{int(seconds%60)}"
@@ -138,6 +161,51 @@ class PlayerView:
     def changeVolume(self, e):
         self.audio.volume = float(e.data)/10
         self.audio.update()
+
+    def repeatDefaultNext(self):
+        self.audio.release()
+        name = self.fileWidget.controls[self.index+1].text
+        if DEBUG: print(name)
+        self.audio.src = self.filePath.value + "\\" + name
+        self.audio.play()
+        self.nameDisplayed.value = name
+        self.nameDisplayed.update()
+        self.audio.update()
+        self.index = self.index+1 if self.index+2<len(self.fileWidget.controls) else self.index-len(self.fileWidget.controls)+1
+        self.playButton.icon = ft.icons.PAUSE_ROUNDED
+        self.playButton.update()
+
+    def repeatDefaultPrevious(self):
+        self.audio.release()
+        name = self.fileWidget.controls[self.index-1].text
+        if DEBUG: print(name)
+        self.audio.src = self.filePath.value + "\\" + name
+        self.audio.play()
+        self.nameDisplayed.value = name
+        self.nameDisplayed.update()
+        self.audio.update()
+        self.index = 0 if abs(self.index)+1==len(self.fileWidget.controls) else self.index-1
+        if DEBUG: print("indice: ", self.index)
+        self.playButton.icon = ft.icons.PAUSE_ROUNDED
+        self.playButton.update()
+
+    def repeatLoop(self):
+        self.audio.play()
+        self.playButton.icon = ft.icons.PAUSE_ROUNDED
+        self.playButton.update()
+
+    def repeatRandom(self):
+        self.audio.release()
+        lenght = len(self.fileWidget.controls)
+        name = self.fileWidget.controls[randint(0, lenght-1)].text
+        if DEBUG: print(name)
+        self.audio.src = self.filePath.value + "\\" + name
+        self.audio.play()
+        self.nameDisplayed.value = name
+        self.nameDisplayed.update()
+        self.audio.update()
+        self.playButton.icon = ft.icons.PAUSE_ROUNDED
+        self.playButton.update()
 
     def returnView(self, playerDialog, audioOverlay):
         self.audio = audioOverlay

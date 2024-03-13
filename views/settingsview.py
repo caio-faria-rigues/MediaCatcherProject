@@ -1,6 +1,6 @@
 import flet as ft
 import toml
-from source.tools import updateTOML
+from source.tools import updateTOML, pallete
 
 class SettingsView:
     def __init__(self) -> None:
@@ -29,14 +29,14 @@ class SettingsView:
         ft.Text(value="Pasta dos Áudios:"),
         ft.Row(
             [
-            ft.IconButton(icon=ft.icons.AUDIO_FILE_ROUNDED, icon_size=30, on_click= lambda _:audioDirDialog.get_directory_path(initial_directory=r'C:\Users\Cliente\Documents\MediaCatcher\Audio')),
+            ft.IconButton(icon=ft.icons.AUDIO_FILE_ROUNDED, icon_size=30, on_click= lambda _:audioDirDialog.get_directory_path(initial_directory=r'C:\Users\Cliente\Documents\MediaCatcher\Audio'), icon_color=pallete[0]),
             self.audioPath,
             ]
         ),
         ft.Text(value="Pasta dos Vídeos:"),
         ft.Row(
             [
-            ft.IconButton(icon=ft.icons.VIDEO_FILE_ROUNDED, icon_size=30, on_click= lambda _:videoDirDialog.get_directory_path(initial_directory=r'C:\Users\Cliente\Documents\MediaCatcher\Audio')),
+            ft.IconButton(icon=ft.icons.VIDEO_FILE_ROUNDED, icon_size=30, on_click= lambda _:videoDirDialog.get_directory_path(initial_directory=r'C:\Users\Cliente\Documents\MediaCatcher\Audio'), icon_color=pallete[0]),
             self.videoPath,
             ]
         ),
@@ -44,7 +44,7 @@ class SettingsView:
         ft.Text(value="Necessário para algumas opções para download, como salvar o áudio com imagem de capa e alguns outros metadados. Visite https://www.ffmpeg.org/download.html", size=10, selectable=True),
         ft.Row(
             [
-            ft.IconButton(icon=ft.icons.INSERT_DRIVE_FILE_ROUNDED, icon_size=30, on_click= lambda _:optionalDirDialog.get_directory_path(initial_directory=r'C:\Users\Cliente\Documents\MediaCatcher')),
+            ft.IconButton(icon=ft.icons.INSERT_DRIVE_FILE_ROUNDED, icon_size=30, on_click= lambda _:optionalDirDialog.get_directory_path(initial_directory=r'C:\Users\Cliente\Documents\MediaCatcher'), icon_color=pallete[0]),
             self.optionalPath,
             ]
         ),

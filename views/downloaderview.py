@@ -121,7 +121,7 @@ class DownloaderView:
         )
 
         self.timeStartInput = ft.TextField(
-            hint_text="0.0",
+            value=0,
             bgcolor=pallete[0],
             width=50, 
             height=30,
@@ -139,7 +139,7 @@ class DownloaderView:
         )
 
         self.timeEndInput = ft.TextField(
-            hint_text="0.0",
+            value=0,
             bgcolor=pallete[0],
             width=50, 
             height=30,

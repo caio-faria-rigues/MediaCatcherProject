@@ -2,7 +2,6 @@ from yt_dlp import YoutubeDL
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from os import remove
 from re import sub
-from source.tools import readTOML
 
 def requestSourceInfo(url):
     opts = {}
@@ -20,6 +19,7 @@ def audioDownloader(url, name, ext, thumb, timeStart, timeEnd, ring, path):
             percentage = float(status['_percent_str'][7:12]) / 100.0
             ring.visible = True if percentage < 1.0 else False
             ring.value = percentage
+            ring.tooltip = str(percentage)+"%"
             ring.update()
 
     name = sub(r'[\\/:*?"<>|]', '', name)
@@ -55,20 +55,22 @@ def audioDownloader(url, name, ext, thumb, timeStart, timeEnd, ring, path):
     print(f"file added to {path}\\{name}.{ext}")
     remove(f'{cache_path}\\t{name}.{ext}')
 
-def videoDownloader(url, name, ext, res, timeStart, timeEnd, ring):
+def videoDownloader(url, name, ext, res, timeStart, timeEnd, ring, path):
 
     def progress(status):
         if status['status'] == 'downloading':
             percentage = float(status['_percent_str'][7:12]) / 100.0
             ring.visible = True if percentage < 1.0 else False
             ring.value = percentage
+            ring.tooltip = str(percentage)+"%"
             ring.update()
 
     name = sub(r'[\\/:*?"<>|]', '', name)
+    cache_path = r'C:\Users\Cliente\Documents\MediaCatcher\.cache'
 
     ydl_opts = {
     'format': f'bestvideo[ext={ext}][height<={res}]+bestaudio[ext={ext}]/best[ext={ext}]',
-    'outtmpl': f't{name}.%(ext)s',
+    'outtmpl':  f'{cache_path}\\t{name}.{ext}',
     'ffmpeg_location': r'C:\Users\Cliente\Vs_projects\Python\Media Saver\test\ffmpeg.exe',
     'progress_hooks': [progress],
     }
@@ -76,5 +78,5 @@ def videoDownloader(url, name, ext, res, timeStart, timeEnd, ring):
     with YoutubeDL(ydl_opts) as ydl:
         error = ydl.download(url)
 
-    ffmpeg_extract_subclip(f't{name}.{ext}', timeStart, timeEnd, targetname=f"{name}.{ext}")
-    remove(f't{name}.{ext}')
+    ffmpeg_extract_subclip(f'{cache_path}\\t{name}.{ext}', timeStart, timeEnd, targetname=f'{path}\\t{name}.{ext}')
+    remove(f'{cache_path}\\t{name}.{ext}')
